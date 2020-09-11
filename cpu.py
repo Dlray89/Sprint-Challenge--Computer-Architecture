@@ -55,9 +55,83 @@ class CPU:
         self.running = False
 
     #set up print to print a register value
-    def PRN_Handle(self, a, _):
-        print(self.reg[a])
+    def PRN_Handle(self, x, _):
+        print(self.reg[x])
         self.pc += 3
+
+    # set up a register to an actual value
+    def LDI_Handle(self, x, y):
+        self.reg[x] = y
+        self.pc += 3
+
+    def MUL_Handle(self, x, y):
+        self.alu('mul', x, y)
+        self.pc += 3
+
+    def ADD_Handle(self, x, y):
+        self.alu('add', x, y)
+        self.pc += 3
+
+    def PUSH_Handle(self, x, _):
+        # push decrease sp
+        self.reg[pointer] -= 1
+        # code the value to the slot
+        reg_v = self.reg[x]
+        self.ram_write(self.reg[pointer], reg_v)
+
+    def POP_Handle(self, x, _):
+        #Where is the sp pointing to
+        sp = self.ram_read(self.reg[pointer])
+
+        #set value to register at index
+        self.reg[x] = sp
+        self.pc += 2
+
+    def CALL_Handle(self, x, y):
+
+        return_address = self.pc + 2
+
+        self.reg[pointer] -= 1
+
+        self.ram_write(self.reg[pointer], return_address)
+
+        self.pc = self.reg[x]
+
+
+
+    def handle_RET(self, x, y):
+        return_address = self.ram[self.reg[pointer]]
+        self.pc = return_address
+        self.reg[pointer] += 1
+
+
+
+    def handle_JEQ(self, x, _y):
+        # if flag is equal
+        if self.fl == 0b00000001:
+            # jump to register we pass in
+            self.pc = self.reg[x]
+        else:
+            self.pc += 2
+
+    def handle_JNE(self, x, _y):
+        # if flag is not equal
+        if self.fl != 0b00000001:
+            # jump to register we pass in
+            self.pc = self.reg[x]
+        else:
+            self.pc += 2
+            
+
+    def handle_JMP(self, x, y):
+        self.pc = self.reg[x]
+
+    def handle_CMP(self, x, y):
+        self.alu("CMP", x, y)
+        self.pc += 3
+
+    
+
 
     
 
